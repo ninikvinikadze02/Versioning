@@ -1,0 +1,79 @@
+stages:
+    - build
+    - test
+    - deploy
+
+image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+
+variables:
+    log_file_name: logs.txt
+    owner_name: Nini
+    pipeline_version: v1.0
+
+build-job:
+    stage: build
+    script: 
+        - echo "--Build has Started--"
+        - echo "--Building-- " >> $log_file_name
+        - echo "--Build has finished--"
+    artifacts:
+        paths:
+            - $log_file_name
+
+test_job:
+    stage: test
+    script: 
+        - echo "--Test has Started--"
+        - echo "--Testing-- " >> $log_file_name
+        - echo "--Test has finished--"
+    artifacts:
+        paths:
+            - $log_file_name
+
+test_job2:
+    stage: test
+    script: 
+        - echo "--Test2 has Started--"
+        - echo "--Testing-- " >> $log_file_name
+        - echo "--Test2 has finished--"
+    artifacts:
+        paths:
+            - $log_file_name
+
+test_job3:
+    stage: test
+    needs: [test_job, test_job2] # makes this job dependent on the other two jobs
+    script: 
+        - echo "--Test2 has Started--"
+        - echo "--Testing-- " >> $log_file_name
+        - echo "--Test2 has finished--"
+    artifacts:
+        paths:
+            - $log_file_name
+
+
+
+deploy_job:
+    stage: deploy
+    script: 
+        - echo "--Deploy has Started--"
+        - echo "--Deploying-- " >> $log_file_name
+        - echo "--Deploying has finished--"
+        - cat $log_file_name
+    artifacts:
+        paths:
+            - $log_file_name
+
+deploy_job1:
+    stage: deploy
+    needs: [test_job2]
+    script: 
+        - echo "--Deploy has Started--"
+        - echo "--Deploying-- " >> $log_file_name
+        - echo "--Deploying has finished--"
+        - cat $log_file_name
+    rules:
+        - if: $CI_COMMIT_BRANCH == "main" # will only run while commiting on main
+    artifacts:
+        paths:
+            - $log_file_name
